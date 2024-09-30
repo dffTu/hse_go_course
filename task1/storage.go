@@ -15,3 +15,7 @@ func (storage *Storage) getBook(id int) (Book, bool) {
 	}
 	return book, ok
 }
+
+func createStorage() Storage {
+	return Storage{make(map[int]Book)}
+}
