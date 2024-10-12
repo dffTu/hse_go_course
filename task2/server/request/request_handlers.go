@@ -43,7 +43,7 @@ func HardOperation(w http.ResponseWriter, r *http.Request) {
 	}
 	time.Sleep(time.Duration(rand.IntN(11)+10) * time.Second)
 	if rand.IntN(2) == 0 {
-		w.WriteHeader(500)
+		w.WriteHeader(500 + rand.IntN(27))
 	} else {
 		w.WriteHeader(200)
 	}
