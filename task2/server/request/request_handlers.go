@@ -3,8 +3,10 @@ package request
 import (
 	"encoding/base64"
 	"encoding/json"
+	"math/rand/v2"
 	"net/http"
 	"task2/models"
+	"time"
 )
 
 func PrintAPI(w http.ResponseWriter, r *http.Request) {
@@ -32,4 +34,17 @@ func Decode(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	json.NewEncoder(w).Encode(models.DecodedString{DecodedFromBase64: string(data)})
+}
+
+func HardOperation(w http.ResponseWriter, r *http.Request) {
+	if r.Method != "GET" {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+	time.Sleep(time.Duration(rand.IntN(11)+10) * time.Second)
+	if rand.IntN(2) == 0 {
+		w.WriteHeader(500)
+	} else {
+		w.WriteHeader(200)
+	}
 }
