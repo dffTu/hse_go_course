@@ -13,7 +13,8 @@ import (
 )
 
 func getSemanticVersion() {
-	response, _ := http.Get("http://localhost:8080/version")
+	request, _ := http.NewRequest(http.MethodGet, "http://localhost:8080/version", nil)
+	response, _ := http.DefaultClient.Do(request)
 	defer response.Body.Close()
 	result, _ := io.ReadAll(response.Body)
 	fmt.Println(string(result))
@@ -25,7 +26,7 @@ func getSemanticVersion() {
 func decodeString(value string) {
 	encoded := models.EncodedString{Base64: base64.StdEncoding.EncodeToString([]byte(value))}
 	json_bytes, _ := json.Marshal(encoded)
-	request, _ := http.NewRequest("POST", "http://localhost:8080/decode", bytes.NewBuffer(json_bytes))
+	request, _ := http.NewRequest(http.MethodPost, "http://localhost:8080/decode", bytes.NewBuffer(json_bytes))
 	response, _ := http.DefaultClient.Do(request)
 	defer response.Body.Close()
 	result, _ := io.ReadAll(response.Body)
@@ -38,17 +39,18 @@ func decodeString(value string) {
 }
 
 func hardOperation() {
-	req, _ := http.NewRequest(http.MethodGet, "http://localhost:8080/hard-op", nil)
+	request, _ := http.NewRequest(http.MethodGet, "http://localhost:8080/hard-op", nil)
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Second*15))
 	defer cancel()
-	req = req.WithContext(ctx)
-	res, _ := http.DefaultClient.Do(req)
+	request = request.WithContext(ctx)
+	response, _ := http.DefaultClient.Do(request)
+	defer response.Body.Close()
 	select {
 	case <-ctx.Done():
 		fmt.Println(false)
 		return
 	default:
-		fmt.Println("true, ", res.StatusCode)
+		fmt.Println("true,", response.StatusCode)
 	}
 }
 
