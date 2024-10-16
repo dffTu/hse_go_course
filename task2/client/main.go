@@ -12,50 +12,89 @@ import (
 	"time"
 )
 
-func getSemanticVersion() {
-	request, _ := http.NewRequest(http.MethodGet, "http://localhost:8080/version", nil)
-	response, _ := http.DefaultClient.Do(request)
+func getSemanticVersion() error {
+	request, err := http.NewRequest(http.MethodGet, "http://localhost:8080/version", nil)
+	if err != nil {
+		return err
+	}
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return err
+	}
 	defer response.Body.Close()
-	result, _ := io.ReadAll(response.Body)
+	result, err := io.ReadAll(response.Body)
+	if err != nil {
+		return err
+	}
 	fmt.Println(string(result))
 	if string(result) != "v1.0.0" {
-		panic("WRONG SEMANTIC VERSION")
+		return fmt.Errorf("WRONG SEMANTIC VERSION")
 	}
+	return nil
 }
 
-func decodeString(value string) {
+func decodeString(value string) error {
 	encoded := models.EncodedString{Base64: base64.StdEncoding.EncodeToString([]byte(value))}
-	json_bytes, _ := json.Marshal(encoded)
-	request, _ := http.NewRequest(http.MethodPost, "http://localhost:8080/decode", bytes.NewBuffer(json_bytes))
-	response, _ := http.DefaultClient.Do(request)
+	json_bytes, err := json.Marshal(encoded)
+	if err != nil {
+		return err
+	}
+	request, err := http.NewRequest(http.MethodPost, "http://localhost:8080/decode", bytes.NewBuffer(json_bytes))
+	if err != nil {
+		return err
+	}
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return err
+	}
 	defer response.Body.Close()
-	result, _ := io.ReadAll(response.Body)
+	result, err := io.ReadAll(response.Body)
+	if err != nil {
+		return err
+	}
 	fmt.Println(string(result))
 	var decoded models.DecodedString
 	json.Unmarshal(result, &decoded)
 	if value != decoded.DecodedFromBase64 {
-		panic("WRONG DECODING")
+		return fmt.Errorf("WRONG DECODING")
 	}
+	return nil
 }
 
-func hardOperation() {
-	request, _ := http.NewRequest(http.MethodGet, "http://localhost:8080/hard-op", nil)
+func hardOperation() error {
+	request, err := http.NewRequest(http.MethodGet, "http://localhost:8080/hard-op", nil)
+	if err != nil {
+		return err
+	}
 	ctx, cancel := context.WithTimeout(context.Background(), time.Duration(time.Second*15))
 	defer cancel()
 	request = request.WithContext(ctx)
-	response, _ := http.DefaultClient.Do(request)
+	response, err := http.DefaultClient.Do(request)
+	if err != nil {
+		return err
+	}
 	defer response.Body.Close()
 	select {
 	case <-ctx.Done():
 		fmt.Println(false)
-		return
+		return nil
 	default:
 		fmt.Println("true,", response.StatusCode)
+		return nil
 	}
 }
 
 func main() {
-	getSemanticVersion()
-	decodeString("Some message")
-	hardOperation()
+	err := getSemanticVersion()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	err = decodeString("Some message")
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+	err = hardOperation()
+	if err != nil {
+		fmt.Println(err.Error())
+	}
 }
