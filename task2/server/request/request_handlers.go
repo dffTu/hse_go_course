@@ -9,12 +9,16 @@ import (
 	"time"
 )
 
+const (
+	semantic_version string = "v1.0.0"
+)
+
 func PrintAPI(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		return
 	}
-	w.Write([]byte("v1.0.0"))
+	w.Write([]byte(semantic_version))
 }
 
 func Decode(w http.ResponseWriter, r *http.Request) {

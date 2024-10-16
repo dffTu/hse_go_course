@@ -13,13 +13,13 @@ import (
 )
 
 const (
-	SERVER_ADDR      string        = "http://localhost:8080"
-	SEMANTIC_VERSION string        = "v1.0.0"
-	HARD_OP_TIMEOUT  time.Duration = time.Duration(time.Second * 15)
+	server_addr      string        = "http://localhost:8080"
+	semantic_version string        = "v1.0.0"
+	hard_op_timeout  time.Duration = time.Duration(time.Second * 15)
 )
 
 func getSemanticVersion() error {
-	request, err := http.NewRequest(http.MethodGet, SERVER_ADDR+"/version", nil)
+	request, err := http.NewRequest(http.MethodGet, server_addr+"/version", nil)
 	if err != nil {
 		return err
 	}
@@ -33,7 +33,7 @@ func getSemanticVersion() error {
 		return err
 	}
 	fmt.Println(string(result))
-	if string(result) != SEMANTIC_VERSION {
+	if string(result) != semantic_version {
 		return fmt.Errorf("WRONG SEMANTIC VERSION")
 	}
 	return nil
@@ -45,7 +45,7 @@ func decodeString(value string) error {
 	if err != nil {
 		return err
 	}
-	request, err := http.NewRequest(http.MethodPost, SERVER_ADDR+"/decode", bytes.NewBuffer(json_bytes))
+	request, err := http.NewRequest(http.MethodPost, server_addr+"/decode", bytes.NewBuffer(json_bytes))
 	if err != nil {
 		return err
 	}
@@ -68,11 +68,11 @@ func decodeString(value string) error {
 }
 
 func hardOperation() error {
-	request, err := http.NewRequest(http.MethodGet, SERVER_ADDR+"/hard-op", nil)
+	request, err := http.NewRequest(http.MethodGet, server_addr+"/hard-op", nil)
 	if err != nil {
 		return err
 	}
-	ctx, cancel := context.WithTimeout(context.Background(), HARD_OP_TIMEOUT)
+	ctx, cancel := context.WithTimeout(context.Background(), hard_op_timeout)
 	defer cancel()
 	request = request.WithContext(ctx)
 	response, err := http.DefaultClient.Do(request)
